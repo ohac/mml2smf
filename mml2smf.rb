@@ -8,7 +8,7 @@ mml = File.open('test.mml', 'r'){|fd|fd.read}
 
 @track = nil
 @tempo = 120
-h = 4
+deflen = 4
 @prog = 1
 velo = 90
 octave = 5
@@ -34,7 +34,6 @@ mml.split(/\n/).each do |line|
     unless @track
       @track = Track.new(seq)
       seq.tracks << @track
-      @track.events << MetaEvent.new(META_SEQ_NAME, 'MML2SMF')
     end
     case c
     when /t/
@@ -45,11 +44,15 @@ mml.split(/\n/).each do |line|
       dopending
       @pending = :prog
       @prog = 0
+    when /;/
+      dopending
+      @track = Track.new(seq)
+      seq.tracks << @track
     when /[cdefgab]/
       dopending
       note = octave * 12 + 'cdefgab'.index(c)
       @track.events << NoteOn.new(0, note, velo, 0)
-      len = seq.length_to_delta(4.0 / h)
+      len = seq.length_to_delta(4.0 / deflen)
       @pending = NoteOff.new(0, note, velo, len)
     when /[0-9]/
       case @pending
