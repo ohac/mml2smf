@@ -4,7 +4,12 @@ require 'midilib/consts'
 include MIDI
 seq = Sequence.new()
 
-mml = File.open('test.mml', 'r'){|fd|fd.read}
+if ARGV.empty?
+  p :usage
+  exit
+end
+file = ARGV[0]
+mml = File.open(file, 'r'){|fd|fd.read}
 
 @track = nil
 @tempo = 120
@@ -44,6 +49,9 @@ end
 
 mml.split(/\n/).each do |line|
   line.chomp!
+  if /^#/ === line
+    next
+  end
   line.split(//).each do |c|
     unless @track
       @track = Track.new(seq)
@@ -103,7 +111,7 @@ mml.split(/\n/).each do |line|
         NoteOn.new(@ch, @note, vel, @rest),
         NoteOff.new(@ch, @note, vel, @len)
       ]
-    when /[0-9]/
+    when /[0-9.]/
       case @pending
       when :tempo
         @tempo *= 10
@@ -123,12 +131,20 @@ mml.split(/\n/).each do |line|
       when :octave
         @octave = c.to_i
       when :rest
-        @lennum *= 10
-        @lennum += c.to_i
+        if c == '.'
+          @lennum *= 1.5
+        else
+          @lennum *= 10
+          @lennum += c.to_i
+        end
         @rest = seq.length_to_delta(4.0 / @lennum)
       else
-        @lennum *= 10
-        @lennum += c.to_i
+        if c == '.'
+          @lennum /= 1.5
+        else
+          @lennum *= 10
+          @lennum += c.to_i
+        end
         @len = seq.length_to_delta(4.0 / @lennum)
         vel = @nextvelocity || @velocity
         @pending[1] = NoteOff.new(@ch, @note, vel, @len)
