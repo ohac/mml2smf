@@ -83,6 +83,7 @@ mml.split(/\n/).each do |line|
       @track = Track.new(seq)
       seq.tracks << @track
     when /[A-Z]/ # TODO ignore
+    when '&' # TODO ignore
     when /[cdefgabn]/
       dopending
       if c == 'n'
