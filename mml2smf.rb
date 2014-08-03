@@ -29,6 +29,8 @@ end
 @lennum = 0
 @ch = 0
 @rest = 0
+@pan = 64
+@volume = 90
 
 def dopending
   case @pending
@@ -43,6 +45,10 @@ def dopending
   when :length
   when :octave
   when :nextoctave
+  when :pan
+    @track.events << Controller.new(@ch, 10, @pan, 0)
+  when :volume
+    @track.events << Controller.new(@ch, 7, @volume, 0)
   when nil
   else
     @track.events << @pending[0]
@@ -110,6 +116,14 @@ mml.split(/\n/).each do |line|
       dopending
       @pending = :rest
       @rest = seq.length_to_delta(4.0 / @deflen)
+    when 'p' # pan
+      dopending
+      @pending = :pan
+      @pan = 0
+    when 'w' # volume
+      dopending
+      @pending = :volume
+      @volume = 0
     when /[<>]/
       dopending
       @octave += 1 if c == '>'
@@ -151,6 +165,12 @@ mml.split(/\n/).each do |line|
       when :ch
         @ch *= 10
         @ch += c.to_i
+      when :pan
+        @pan *= 10
+        @pan += c.to_i
+      when :volume
+        @volume *= 10
+        @volume += c.to_i
       when :octave
         @octave = c.to_i
       when :length

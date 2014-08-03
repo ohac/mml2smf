@@ -1,12 +1,14 @@
 t90
 ch0
 @31
+w80
 c8 r8      d e8 r8 f+ o4    c            l16 eere l4
 ;
 ch1
 @5
+w90
 f8 r8 '127 g r8 a8 b- < v50 c16c16c16c16 v90 l8 d.d16
 ;
 ch2
 @10
-l8 n50 n60 n70
+l8 p0 n50 p127 n60 p64 n70 w127 n80 w50 n90

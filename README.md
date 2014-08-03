@@ -42,11 +42,11 @@ Commands
 * `v<velocity>` velocity: 0 - 127
 * `'<velocity>` velocity: 0 - 127
 * `# comment`
+* `p<pan>` pan: 0 - 127
+* `w<volume>` volume: 0 - 127
 
 TODO
 
-* `p<pan>` pan: 0 - 127
-* `w<volume>` volume: 0 - 127
 * `{code}`
 * `&` tie
 * `q<length>` `q`
