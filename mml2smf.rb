@@ -11,6 +11,7 @@ mml = File.open('test.mml', 'r'){|fd|fd.read}
 deflen = 4
 @prog = 1
 @velocity = 90
+@nextvelocity = nil
 @octave = 4
 @pending = nil
 @note = nil
@@ -24,6 +25,7 @@ def dopending
   when :tempo
     @track.events << Tempo.new(Tempo.bpm_to_mpq(@tempo))
   when :velocity
+  when :nextvelocity
   when :prog
     @track.events << ProgramChange.new(@ch, @prog, 0)
   when :ch
@@ -35,6 +37,7 @@ def dopending
     @track.events << @pending[1]
     @rest = 0
     @lennum = 0
+    @nextvelocity = nil
   end
   @pending = nil
 end
@@ -55,6 +58,10 @@ mml.split(/\n/).each do |line|
       dopending
       @pending = :velocity
       @velocity = 0
+    when "'"
+      dopending
+      @pending = :nextvelocity
+      @nextvelocity = 0
     when /@/
       dopending
       @pending = :prog
@@ -68,9 +75,10 @@ mml.split(/\n/).each do |line|
       @note = (@octave + 1) * 12 + 'c d ef g a b'.index(c)
       @len = seq.length_to_delta(4.0 / deflen)
       @lennum = 0
+      vel = @nextvelocity || @velocity
       @pending = [
-        NoteOn.new(@ch, @note, @velocity, @rest),
-        NoteOff.new(@ch, @note, @velocity, @len)
+        NoteOn.new(@ch, @note, vel, @rest),
+        NoteOff.new(@ch, @note, vel, @len)
       ]
     when 'h' # ch
       @pending = :ch
@@ -89,9 +97,11 @@ mml.split(/\n/).each do |line|
     when /[+-]/
       @note += 1 if c == '+'
       @note -= 1 if c == '-'
+      vel = @nextvelocity || @velocity
+      @pending[1] = NoteOff.new(@ch, @note, vel, @len)
       @pending = [
-        NoteOn.new(@ch, @note, @velocity, @rest),
-        NoteOff.new(@ch, @note, @velocity, @len)
+        NoteOn.new(@ch, @note, vel, @rest),
+        NoteOff.new(@ch, @note, vel, @len)
       ]
     when /[0-9]/
       case @pending
@@ -101,6 +111,9 @@ mml.split(/\n/).each do |line|
       when :velocity
         @velocity *= 10
         @velocity += c.to_i
+      when :nextvelocity
+        @nextvelocity *= 10
+        @nextvelocity += c.to_i
       when :prog
         @prog *= 10
         @prog += c.to_i
@@ -117,7 +130,8 @@ mml.split(/\n/).each do |line|
         @lennum *= 10
         @lennum += c.to_i
         @len = seq.length_to_delta(4.0 / @lennum)
-        @pending[1] = NoteOff.new(@ch, @note, @velocity, @len)
+        vel = @nextvelocity || @velocity
+        @pending[1] = NoteOff.new(@ch, @note, vel, @len)
       end
     when /[ \t\n]/
     end

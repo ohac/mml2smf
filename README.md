@@ -11,3 +11,5 @@ Convert MML to Standard MIDI File
 * `;` next track
 * `[<>]` octave up and down
 * `o<octave>` octave: -1, 0, ..., 9
+* `v<velocity>` velocity: 0 - 127
+* `'<velocity>` velocity: 0 - 127
