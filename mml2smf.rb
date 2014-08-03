@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 require 'midilib/sequence'
 require 'midilib/consts'
+require 'erb'
 include MIDI
 seq = Sequence.new()
 
@@ -10,6 +11,9 @@ if ARGV.empty?
 end
 file = ARGV[0]
 mml = File.open(file, 'r'){|fd|fd.read}
+if /\.rmml/ === file
+  mml = ERB.new(mml).result
+end
 
 @track = nil
 @tempo = 120

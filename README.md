@@ -10,6 +10,7 @@ Install
 Convert
 
     $ ruby mml2smf.rb examples/test.mml
+    $ ruby mml2smf.rb examples/erb.emml
 
 Play
 
@@ -54,4 +55,3 @@ TODO
 * lyrics for Vocaloid: ignored
 * `^[A-Z]` track
 * `[` `]<repeat>`
-* Ruby Template Engine
