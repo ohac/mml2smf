@@ -28,6 +28,7 @@ Play
 Commands
 
 * `[a-g]<+-><length>` length: 1,2,4,8,16,2.,4.,...
+* `n<note>` note: 1 - 127
 * `r<length>`
 * `t<tempo>`
 * `@<program change>`
@@ -47,7 +48,6 @@ TODO
 * `{code}`
 * `&` tie
 * `l<length>` length: 1,2,4,8,16,...
-* `n<note>` note: 1 - 127
 * `q<length>` `q`
 * `%<num>.<control>`
 * `|<pitch>` pitch: -8192 - 8191

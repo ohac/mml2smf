@@ -82,11 +82,16 @@ mml.split(/\n/).each do |line|
       dopending
       @track = Track.new(seq)
       seq.tracks << @track
-    when /[cdefgab]/
+    when /[cdefgabn]/
       dopending
-      @note = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
+      if c == 'n'
+        @note = 0
+        @lennum = nil
+      else
+        @note = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
+        @lennum = 0
+      end
       @len = seq.length_to_delta(4.0 / @deflen)
-      @lennum = 0
       vel = @nextvelocity || @velocity
       @pending = [
         NoteOn.new(@ch, @note, vel, @rest),
@@ -149,25 +154,29 @@ mml.split(/\n/).each do |line|
           @deflen *= 10
           @deflen += c.to_i
         end
-      when :rest
-        if c == '.'
-          @lennum *= 1.5
-        else
-          @lennum *= 10
-          @lennum += c.to_i
-        end
-        @rest = seq.length_to_delta(4.0 / @lennum)
       else
+        vel = @nextvelocity || @velocity
         if c == '.'
-          @lennum = @deflen if @lennum == 0
+          @lennum = @deflen if @lennum == 0 || @lennum.nil?
           @lennum /= 1.5
+        elsif @lennum.nil?
+          @note *= 10
+          @note += c.to_i
+          len = seq.length_to_delta(4.0 / @deflen)
+          @pending = [
+            NoteOn.new(@ch, @note, vel, @rest),
+            NoteOff.new(@ch, @note, vel, len)
+          ]
         else
           @lennum *= 10
           @lennum += c.to_i
         end
-        @len = seq.length_to_delta(4.0 / @lennum)
-        vel = @nextvelocity || @velocity
-        @pending[1] = NoteOff.new(@ch, @note, vel, @len)
+        if @pending == :rest
+          @rest = seq.length_to_delta(4.0 / @lennum)
+        elsif !@lennum.nil?
+          @len = seq.length_to_delta(4.0 / @lennum)
+          @pending[1] = NoteOff.new(@ch, @note, vel, @len)
+        end
       end
     when /[ \t\n]/
     end
