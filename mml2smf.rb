@@ -42,6 +42,7 @@ def dopending
   when :prog
     @track.events << ProgramChange.new(@ch, @prog, 0)
   when :ch
+    @ch -= 1
   when :rest
   when :length
   when :octave
