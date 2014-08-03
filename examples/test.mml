@@ -1,7 +1,7 @@
 t90
 ch0
 @31
-c8 r8 d e8 r8 f+ o4 c
+c8 r8      d e8 r8 f+ o4    c            l16 eere l4
 ;
 ch1
 @5

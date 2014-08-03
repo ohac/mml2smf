@@ -13,7 +13,7 @@ mml = File.open(file, 'r'){|fd|fd.read}
 
 @track = nil
 @tempo = 120
-deflen = 4
+@deflen = 4
 @prog = 1
 @velocity = 90
 @nextvelocity = nil
@@ -21,7 +21,7 @@ deflen = 4
 @nextoctave = 0
 @pending = nil
 @note = nil
-@len = deflen
+@len = @deflen
 @lennum = 0
 @ch = 0
 @rest = 0
@@ -36,6 +36,7 @@ def dopending
     @track.events << ProgramChange.new(@ch, @prog, 0)
   when :ch
   when :rest
+  when :length
   when :octave
   when :nextoctave
   when nil
@@ -84,7 +85,7 @@ mml.split(/\n/).each do |line|
     when /[cdefgab]/
       dopending
       @note = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
-      @len = seq.length_to_delta(4.0 / deflen)
+      @len = seq.length_to_delta(4.0 / @deflen)
       @lennum = 0
       vel = @nextvelocity || @velocity
       @pending = [
@@ -97,7 +98,7 @@ mml.split(/\n/).each do |line|
     when 'r' # rest
       dopending
       @pending = :rest
-      @rest = seq.length_to_delta(4.0 / deflen)
+      @rest = seq.length_to_delta(4.0 / @deflen)
     when /[<>]/
       dopending
       @octave += 1 if c == '<'
@@ -109,6 +110,10 @@ mml.split(/\n/).each do |line|
     when 'o'
       dopending
       @pending = :octave
+    when 'l'
+      dopending
+      @pending = :length
+      @deflen = 0
     when /[+-]/
       @note += 1 if c == '+'
       @note -= 1 if c == '-'
@@ -137,6 +142,13 @@ mml.split(/\n/).each do |line|
         @ch += c.to_i
       when :octave
         @octave = c.to_i
+      when :length
+        if c == '.'
+          @deflen *= 1.5
+        else
+          @deflen *= 10
+          @deflen += c.to_i
+        end
       when :rest
         if c == '.'
           @lennum *= 1.5
