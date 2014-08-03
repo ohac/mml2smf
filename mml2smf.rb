@@ -159,6 +159,7 @@ mml.split(/\n/).each do |line|
         @rest = seq.length_to_delta(4.0 / @lennum)
       else
         if c == '.'
+          @lennum = @deflen if @lennum == 0
           @lennum /= 1.5
         else
           @lennum *= 10
