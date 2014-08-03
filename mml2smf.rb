@@ -31,6 +31,7 @@ end
 @rest = 0
 @pan = 64
 @volume = 90
+@staccato = 0
 
 def dopending
   case @pending
@@ -45,6 +46,7 @@ def dopending
   when :length
   when :octave
   when :nextoctave
+  when :staccato
   when :pan
     @track.events << Controller.new(@ch, 10, @pan, 0)
   when :volume
@@ -124,6 +126,10 @@ mml.split(/\n/).each do |line|
       dopending
       @pending = :volume
       @volume = 0
+    when 'q'
+      dopending
+      @pending = :staccato
+      @staccato = 0
     when /[<>]/
       dopending
       @octave += 1 if c == '>'
@@ -171,6 +177,9 @@ mml.split(/\n/).each do |line|
       when :volume
         @volume *= 10
         @volume += c.to_i
+      when :staccato
+        @staccato *= 10
+        @staccato += c.to_i
       when :octave
         @octave = c.to_i
       when :length
