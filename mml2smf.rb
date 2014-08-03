@@ -11,7 +11,7 @@ mml = File.open('test.mml', 'r'){|fd|fd.read}
 deflen = 4
 @prog = 1
 @velo = 90
-octave = 5
+@octave = 4
 @pending = nil
 @note = nil
 @len = deflen
@@ -26,6 +26,7 @@ def dopending
     @track.events << ProgramChange.new(@ch, @prog, 0)
   when :ch
   when :rest
+  when :octave
   when nil
   else
     @track.events << @pending[0]
@@ -57,7 +58,7 @@ mml.split(/\n/).each do |line|
       seq.tracks << @track
     when /[cdefgab]/
       dopending
-      @note = octave * 12 + 'cdefgab'.index(c)
+      @note = (@octave + 1) * 12 + 'c d ef g a b'.index(c)
       @len = seq.length_to_delta(4.0 / deflen)
       @pending = [
         NoteOn.new(@ch, @note, @velo, @rest),
@@ -70,6 +71,13 @@ mml.split(/\n/).each do |line|
       dopending
       @pending = :rest
       @rest = seq.length_to_delta(4.0 / deflen)
+    when /[<>]/
+      dopending
+      @octave += 1 if c == '<'
+      @octave -= 1 if c == '>'
+    when 'o'
+      dopending
+      @pending = :octave
     when /[+-]/
       @note += 1 if c == '+'
       @note -= 1 if c == '-'
@@ -88,6 +96,8 @@ mml.split(/\n/).each do |line|
       when :ch
         @ch *= 10
         @ch += c.to_i
+      when :octave
+        @octave = c.to_i
       when :rest
         @rest = seq.length_to_delta(4.0 / c.to_i)
       else
