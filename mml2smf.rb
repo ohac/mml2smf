@@ -10,20 +10,24 @@ mml = File.open('test.mml', 'r'){|fd|fd.read}
 @tempo = 120
 deflen = 4
 @prog = 1
-velo = 90
+@velo = 90
 octave = 5
 @pending = nil
-note = nil
+@note = nil
+@len = deflen
+@ch = 0
 
 def dopending
   case @pending
   when :tempo
     @track.events << Tempo.new(Tempo.bpm_to_mpq(@tempo))
   when :prog
-    @track.events << ProgramChange.new(0, @prog, 0)
+    @track.events << ProgramChange.new(@ch, @prog, 0)
+  when :ch
   when nil
   else
-    @track.events << @pending
+    @track.events << @pending[0]
+    @track.events << @pending[1]
   end
   @pending = nil
 end
@@ -50,10 +54,22 @@ mml.split(/\n/).each do |line|
       seq.tracks << @track
     when /[cdefgab]/
       dopending
-      note = octave * 12 + 'cdefgab'.index(c)
-      @track.events << NoteOn.new(0, note, velo, 0)
-      len = seq.length_to_delta(4.0 / deflen)
-      @pending = NoteOff.new(0, note, velo, len)
+      @note = octave * 12 + 'cdefgab'.index(c)
+      @len = seq.length_to_delta(4.0 / deflen)
+      @pending = [
+        NoteOn.new(@ch, @note, @velo, 0),
+        NoteOff.new(@ch, @note, @velo, @len)
+      ]
+    when 'h' # ch
+      @pending = :ch
+      @ch = 0
+    when /[+-]/
+      @note += 1 if c == '+'
+      @note -= 1 if c == '-'
+      @pending = [
+        NoteOn.new(@ch, @note, @velo, 0),
+        NoteOff.new(@ch, @note, @velo, @len)
+      ]
     when /[0-9]/
       case @pending
       when :tempo
@@ -62,10 +78,14 @@ mml.split(/\n/).each do |line|
       when :prog
         @prog *= 10
         @prog += c.to_i
+      when :ch
+        @ch *= 10
+        @ch += c.to_i
       else
-        len = seq.length_to_delta(4.0 / c.to_i)
-        @pending = NoteOff.new(0, note, velo, len)
-        @track.events << @pending
+        @len = seq.length_to_delta(4.0 / c.to_i)
+        @pending[1] = NoteOff.new(@ch, @note, @velo, @len)
+        @track.events << @pending[0]
+        @track.events << @pending[1]
         @pending = nil
       end
     when /[ \t\n]/

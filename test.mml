@@ -1,5 +1,8 @@
-@31
 t90
-c8 d e8 f
+ch0
+@31
+c8 d e8 f+
 ;
-f8 g a8 b
+ch1
+@5
+f8 g a8 b+
