@@ -1,8 +1,8 @@
 t90
 ch0
 @31
-c8 d e8 f+
+c8 r8 d e8 r8 f+
 ;
 ch1
 @5
-f8 g a8 b+
+f8 r8 g r8 a8 b+

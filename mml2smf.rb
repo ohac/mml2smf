@@ -16,6 +16,7 @@ octave = 5
 @note = nil
 @len = deflen
 @ch = 0
+@rest = 0
 
 def dopending
   case @pending
@@ -24,10 +25,12 @@ def dopending
   when :prog
     @track.events << ProgramChange.new(@ch, @prog, 0)
   when :ch
+  when :rest
   when nil
   else
     @track.events << @pending[0]
     @track.events << @pending[1]
+    @rest = 0
   end
   @pending = nil
 end
@@ -57,17 +60,21 @@ mml.split(/\n/).each do |line|
       @note = octave * 12 + 'cdefgab'.index(c)
       @len = seq.length_to_delta(4.0 / deflen)
       @pending = [
-        NoteOn.new(@ch, @note, @velo, 0),
+        NoteOn.new(@ch, @note, @velo, @rest),
         NoteOff.new(@ch, @note, @velo, @len)
       ]
     when 'h' # ch
       @pending = :ch
       @ch = 0
+    when 'r' # rest
+      dopending
+      @pending = :rest
+      @rest = seq.length_to_delta(4.0 / deflen)
     when /[+-]/
       @note += 1 if c == '+'
       @note -= 1 if c == '-'
       @pending = [
-        NoteOn.new(@ch, @note, @velo, 0),
+        NoteOn.new(@ch, @note, @velo, @rest),
         NoteOff.new(@ch, @note, @velo, @len)
       ]
     when /[0-9]/
@@ -81,12 +88,11 @@ mml.split(/\n/).each do |line|
       when :ch
         @ch *= 10
         @ch += c.to_i
+      when :rest
+        @rest = seq.length_to_delta(4.0 / c.to_i)
       else
         @len = seq.length_to_delta(4.0 / c.to_i)
         @pending[1] = NoteOff.new(@ch, @note, @velo, @len)
-        @track.events << @pending[0]
-        @track.events << @pending[1]
-        @pending = nil
       end
     when /[ \t\n]/
     end
