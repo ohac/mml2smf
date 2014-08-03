@@ -15,6 +15,7 @@ deflen = 4
 @pending = nil
 @note = nil
 @len = deflen
+@lennum = 0
 @ch = 0
 @rest = 0
 
@@ -32,6 +33,7 @@ def dopending
     @track.events << @pending[0]
     @track.events << @pending[1]
     @rest = 0
+    @lennum = 0
   end
   @pending = nil
 end
@@ -60,6 +62,7 @@ mml.split(/\n/).each do |line|
       dopending
       @note = (@octave + 1) * 12 + 'c d ef g a b'.index(c)
       @len = seq.length_to_delta(4.0 / deflen)
+      @lennum = 0
       @pending = [
         NoteOn.new(@ch, @note, @velo, @rest),
         NoteOff.new(@ch, @note, @velo, @len)
@@ -99,9 +102,13 @@ mml.split(/\n/).each do |line|
       when :octave
         @octave = c.to_i
       when :rest
-        @rest = seq.length_to_delta(4.0 / c.to_i)
+        @lennum *= 10
+        @lennum += c.to_i
+        @rest = seq.length_to_delta(4.0 / @lennum)
       else
-        @len = seq.length_to_delta(4.0 / c.to_i)
+        @lennum *= 10
+        @lennum += c.to_i
+        @len = seq.length_to_delta(4.0 / @lennum)
         @pending[1] = NoteOff.new(@ch, @note, @velo, @len)
       end
     when /[ \t\n]/
