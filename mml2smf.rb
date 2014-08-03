@@ -82,6 +82,7 @@ mml.split(/\n/).each do |line|
       dopending
       @track = Track.new(seq)
       seq.tracks << @track
+    when /[A-Z]/ # TODO ignore
     when /[cdefgabn]/
       dopending
       if c == 'n'
@@ -106,8 +107,8 @@ mml.split(/\n/).each do |line|
       @rest = seq.length_to_delta(4.0 / @deflen)
     when /[<>]/
       dopending
-      @octave += 1 if c == '<'
-      @octave -= 1 if c == '>'
+      @octave += 1 if c == '>'
+      @octave -= 1 if c == '<'
     when /[~_]/
       dopending
       @pending = :nextoctave
