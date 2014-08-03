@@ -18,6 +18,7 @@ deflen = 4
 @velocity = 90
 @nextvelocity = nil
 @octave = 4
+@nextoctave = 0
 @pending = nil
 @note = nil
 @len = deflen
@@ -36,6 +37,7 @@ def dopending
   when :ch
   when :rest
   when :octave
+  when :nextoctave
   when nil
   else
     @track.events << @pending[0]
@@ -43,6 +45,7 @@ def dopending
     @rest = 0
     @lennum = 0
     @nextvelocity = nil
+    @nextoctave = 0
   end
   @pending = nil
 end
@@ -80,7 +83,7 @@ mml.split(/\n/).each do |line|
       seq.tracks << @track
     when /[cdefgab]/
       dopending
-      @note = (@octave + 1) * 12 + 'c d ef g a b'.index(c)
+      @note = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
       @len = seq.length_to_delta(4.0 / deflen)
       @lennum = 0
       vel = @nextvelocity || @velocity
@@ -99,6 +102,10 @@ mml.split(/\n/).each do |line|
       dopending
       @octave += 1 if c == '<'
       @octave -= 1 if c == '>'
+    when /[~_]/
+      dopending
+      @pending = :nextoctave
+      @nextoctave = c == '~' ? 1 : -1
     when 'o'
       dopending
       @pending = :octave

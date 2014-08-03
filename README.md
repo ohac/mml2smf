@@ -27,7 +27,7 @@ Play
 
 Commands
 
-* `[a-g]<+-><length>` length: 1,2,4,8,16,...
+* `[a-g]<+-><length>` length: 1,2,4,8,16,2.,4.,...
 * `r<length>`
 * `t<tempo>`
 * `@<program change>`
@@ -35,9 +35,9 @@ Commands
 * `;` next track
 * `[<>]` octave up and down
 * `o<octave>` octave: -1, 0, ..., 9
+* `[~_]` octave up and down
 * `v<velocity>` velocity: 0 - 127
 * `'<velocity>` velocity: 0 - 127
-* `.` x1.5
 * `# comment`
 
 TODO
@@ -47,7 +47,6 @@ TODO
 * `{code}`
 * `&` tie
 * `l<length>` length: 1,2,4,8,16,...
-* `[~_]` octave up and down
 * `n<note>` note: 1 - 127
 * `q<length>` `q`
 * `%<num>.<control>`
