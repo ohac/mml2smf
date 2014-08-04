@@ -29,6 +29,7 @@ end
 @lennum = 0
 @ch = 0
 @rest = 0
+@nextrest = 0
 @pan = 64
 @volume = 90
 @staccato = 0
@@ -44,6 +45,7 @@ def dopending
   when :ch
     @ch -= 1
   when :rest
+    @rest += @nextrest
   when :length
   when :octave
   when :nextoctave
@@ -57,6 +59,7 @@ def dopending
     @track.events << @pending[0]
     @track.events << @pending[1]
     @rest = 0
+    @nextrest = 0
     @lennum = 0
     @nextvelocity = nil
     @nextoctave = 0
@@ -117,8 +120,9 @@ mml.split(/\n/).each do |line|
       @ch = 0
     when 'r' # rest
       dopending
+      @lennum = 0
       @pending = :rest
-      @rest = seq.length_to_delta(4.0 / @deflen)
+      @nextrest = seq.length_to_delta(4.0 / @deflen)
     when 'p' # pan
       dopending
       @pending = :pan
@@ -208,7 +212,7 @@ mml.split(/\n/).each do |line|
           @lennum += c.to_i
         end
         if @pending == :rest
-          @rest = seq.length_to_delta(4.0 / @lennum)
+          @nextrest = seq.length_to_delta(4.0 / @lennum)
         elsif !@lennum.nil?
           @len = seq.length_to_delta(4.0 / @lennum)
           @pending[1] = NoteOff.new(@ch, @note, vel, @len)
