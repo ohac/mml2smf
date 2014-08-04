@@ -46,6 +46,7 @@ Commands
 * `p<pan>` pan: 0 - 127
 * `w<volume>` volume: 0 - 127
 * `q<length>` `q` staccato
+* `{code}`
 
 Preprocessor
 
@@ -53,7 +54,6 @@ Preprocessor
 
 TODO
 
-* `{code}`
 * `%<num>.<control>`
 * `|<pitch>` pitch: -8192 - 8191
 * lyrics for Vocaloid: ignored

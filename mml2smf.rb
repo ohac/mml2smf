@@ -61,6 +61,7 @@ end
 @volume = 90
 @staccato = 0
 @tie = nil
+@code = nil
 
 def dopending
   case @pending
@@ -100,7 +101,24 @@ def dopending
       @rest = 0
     end
     @track.events << noteon
+    if @code
+      @code = @code[1, @code.size - 2]
+      @code.each do |note|
+        anote = noteon.clone
+        anote.delta_time = 0
+        anote.note = note
+        @track.events << anote
+      end
+    end
     @track.events << noteoff
+    if @code
+      @code.each do |note|
+        anote = noteoff.clone
+        anote.delta_time = 0
+        anote.note = note
+        @track.events << anote
+      end
+    end
     @nextrest = 0
     @lennum = 0
     @nextvelocity = nil
@@ -153,17 +171,23 @@ mml.split(/\n/).each do |line|
         if nextnote != @pending[0].note
           dopending
         end
+      elsif @code
+        dopending if @code.last == :end
       else
         dopending
       end
       @note = nextnote
-      @lennum = c == 'n' ? nil : 0
-      @len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
-      vel = @nextvelocity || @velocity
-      @pending = [
-        NoteOn.new(@ch, @note, vel, @rest),
-        NoteOff.new(@ch, @note, vel, @len)
-      ]
+      @code << @note if @code
+      if @code && @code.size > 1
+      else
+        @lennum = c == 'n' ? nil : 0
+        @len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
+        vel = @nextvelocity || @velocity
+        @pending = [
+          NoteOn.new(@ch, @note, vel, @rest),
+          NoteOff.new(@ch, @note, vel, @len)
+        ]
+      end
     when 'h' # ch
       @pending = :ch
       @ch = 0
@@ -184,6 +208,11 @@ mml.split(/\n/).each do |line|
       dopending
       @pending = :staccato
       @staccato = 0
+    when '{'
+      dopending
+      @code = []
+    when '}'
+      @code << :end
     when /[<>]/
       dopending
       @octave += 1 if c == '>'
@@ -206,12 +235,15 @@ mml.split(/\n/).each do |line|
       else
         @note += 1 if c == '+'
         @note -= 1 if c == '-'
-        vel = @nextvelocity || @velocity
-        @pending[1] = NoteOff.new(@ch, @note, vel, @len)
-        @pending = [
-          NoteOn.new(@ch, @note, vel, @rest),
-          NoteOff.new(@ch, @note, vel, @len)
-        ]
+        if @code && @code.size > 1
+          @code[-1] = @note
+        else
+          vel = @nextvelocity || @velocity
+          @pending = [
+            NoteOn.new(@ch, @note, vel, @rest),
+            NoteOff.new(@ch, @note, vel, @len)
+          ]
+        end
       end
     when /[0-9.]/
       case @pending
@@ -275,7 +307,7 @@ mml.split(/\n/).each do |line|
           @nextrest = @seq.length_to_delta(4.0 / @lennum)
         elsif !@lennum.nil?
           @len = @seq.length_to_delta(4.0 / @lennum) + (@tie || 0)
-          @pending[1] = NoteOff.new(@ch, @note, vel, @len)
+          @pending[1].delta_time = @len
         end
       end
     when /[ \t\n]/
