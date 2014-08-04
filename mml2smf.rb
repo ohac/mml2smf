@@ -200,14 +200,19 @@ mml.split(/\n/).each do |line|
       @pending = :length
       @deflen = 0
     when /[+-]/
-      @note += 1 if c == '+'
-      @note -= 1 if c == '-'
-      vel = @nextvelocity || @velocity
-      @pending[1] = NoteOff.new(@ch, @note, vel, @len)
-      @pending = [
-        NoteOn.new(@ch, @note, vel, @rest),
-        NoteOff.new(@ch, @note, vel, @len)
-      ]
+      case @pending
+      when :staccato
+        @staccato = nil if c == '-'
+      else
+        @note += 1 if c == '+'
+        @note -= 1 if c == '-'
+        vel = @nextvelocity || @velocity
+        @pending[1] = NoteOff.new(@ch, @note, vel, @len)
+        @pending = [
+          NoteOn.new(@ch, @note, vel, @rest),
+          NoteOff.new(@ch, @note, vel, @len)
+        ]
+      end
     when /[0-9.]/
       case @pending
       when :tempo
@@ -232,8 +237,14 @@ mml.split(/\n/).each do |line|
         @volume *= 10
         @volume += c.to_i
       when :staccato
-        @staccato *= 10
-        @staccato += c.to_i
+        if @staccato.nil? || @staccato < 0
+          @staccato = 0 unless @staccato
+          @staccato *= 10
+          @staccato -= c.to_i
+        else
+          @staccato *= 10
+          @staccato += c.to_i
+        end
       when :octave
         @octave = c.to_i
       when :length

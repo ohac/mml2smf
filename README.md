@@ -45,7 +45,7 @@ Commands
 * `# comment`
 * `p<pan>` pan: 0 - 127
 * `w<volume>` volume: 0 - 127
-* `q<length>` `q` staccato (positive length only)
+* `q<length>` `q` staccato
 
 Preprocessor
 
@@ -53,7 +53,6 @@ Preprocessor
 
 TODO
 
-* `q-<length>` staccato (negative length)
 * `{code}`
 * `%<num>.<control>`
 * `|<pitch>` pitch: -8192 - 8191
