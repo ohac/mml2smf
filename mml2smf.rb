@@ -77,7 +77,6 @@ def dopending
     @rest += @nextrest
   when :length
   when :octave
-  when :nextoctave
   when :staccato
   when :pan
     @track.events << Controller.new(@ch, 10, @pan, 0)
@@ -218,8 +217,9 @@ mml.split(/\n/).each do |line|
       @octave += 1 if c == '>'
       @octave -= 1 if c == '<'
     when /[~_]/
-      dopending
-      @pending = :nextoctave
+      unless @tie
+        dopending
+      end
       @nextoctave = c == '~' ? 1 : -1
     when 'o'
       dopending
