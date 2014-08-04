@@ -122,7 +122,6 @@ def dopending
     @nextrest = 0
     @lennum = 0
     @nextvelocity = nil
-    @nextoctave = 0
     @tie = nil
   end
   @pending = nil
@@ -166,6 +165,7 @@ mml.split(/\n/).each do |line|
       nextnote = 0
       if c != 'n'
         nextnote = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
+        @nextoctave = 0
       end
       if @tie
         if nextnote != @pending[0].note
