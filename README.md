@@ -47,6 +47,10 @@ Commands
 * `w<volume>` volume: 0 - 127
 * `q<length>` `q` staccato (positive length only)
 
+Preprocessor
+
+* `^[A-Z] ` track
+
 TODO
 
 * `q-<length>` staccato (negative length)
@@ -54,5 +58,4 @@ TODO
 * `%<num>.<control>`
 * `|<pitch>` pitch: -8192 - 8191
 * lyrics for Vocaloid: ignored
-* `^[A-Z]` track
 * `[` `]<repeat>`

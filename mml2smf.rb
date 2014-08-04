@@ -15,6 +15,33 @@ if /\.rmml/ === file
   mml = ERB.new(mml).result
 end
 
+alltracks = []
+mmllines = mml.split(/\n/)
+mmllines.each do |line|
+  tracks = line.match(/^([A-Z]+) /)
+  if tracks
+    alltracks += tracks[1].split(//)
+  else
+    alltracks << 'x'
+  end
+end
+alltracks = alltracks.uniq
+if alltracks.size > 1
+  mmllinesnew = []
+  alltracks.each do |trackc|
+    mmllines.each do |line|
+      tracks = line.match(/^([A-Z]+) (.*)/)
+      if trackc == 'x'
+        mmllinesnew << line unless tracks
+      elsif tracks
+        mmllinesnew << tracks[2] if tracks[1].include?(trackc)
+      end
+    end
+  end
+  mmllinesnew << ''
+  mml = mmllinesnew.join("\n")
+end
+
 @track = nil
 @tempo = 120
 @deflen = 4
@@ -84,7 +111,6 @@ def dopending
 end
 
 mml.split(/\n/).each do |line|
-  line.chomp!
   if /^#/ === line
     next
   end
@@ -114,7 +140,6 @@ mml.split(/\n/).each do |line|
       dopending
       @track = Track.new(@seq)
       @seq.tracks << @track
-    when /[A-Z]/ # TODO ignore
     when '&'
       if @pending != :rest
         @tie = @pending[1].delta_time
