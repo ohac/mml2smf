@@ -45,11 +45,12 @@ Commands
 * `# comment`
 * `p<pan>` pan: 0 - 127
 * `w<volume>` volume: 0 - 127
+* `q<length>` `q` staccato (positive length only)
 
 TODO
 
+* `q-<length>` staccato (negative length)
 * `{code}`
-* `q<length>` `q`
 * `%<num>.<control>`
 * `|<pitch>` pitch: -8192 - 8191
 * lyrics for Vocaloid: ignored

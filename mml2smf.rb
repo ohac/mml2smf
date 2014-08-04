@@ -3,7 +3,7 @@ require 'midilib/sequence'
 require 'midilib/consts'
 require 'erb'
 include MIDI
-seq = Sequence.new()
+@seq = Sequence.new()
 
 if ARGV.empty?
   p :usage
@@ -57,9 +57,23 @@ def dopending
     @track.events << Controller.new(@ch, 7, @volume, 0)
   when nil
   else
-    @track.events << @pending[0]
-    @track.events << @pending[1]
-    @rest = 0
+    noteon = @pending[0]
+    noteoff = @pending[1]
+    if @staccato != 0
+      len = @seq.length_to_delta(4.0 / @staccato.abs)
+      noteon.delta_time = noteon.delta_time
+      if @staccato > 0
+        @rest = noteoff.delta_time - len
+        noteoff.delta_time = len
+      else
+        noteoff.delta_time = noteoff.delta_time - len
+        @rest = len
+      end
+    else
+      @rest = 0
+    end
+    @track.events << noteon
+    @track.events << noteoff
     @nextrest = 0
     @lennum = 0
     @nextvelocity = nil
@@ -76,8 +90,8 @@ mml.split(/\n/).each do |line|
   end
   line.split(//).each do |c|
     unless @track
-      @track = Track.new(seq)
-      seq.tracks << @track
+      @track = Track.new(@seq)
+      @seq.tracks << @track
     end
     case c
     when /t/
@@ -98,8 +112,8 @@ mml.split(/\n/).each do |line|
       @prog = 0
     when /;/
       dopending
-      @track = Track.new(seq)
-      seq.tracks << @track
+      @track = Track.new(@seq)
+      @seq.tracks << @track
     when /[A-Z]/ # TODO ignore
     when '&'
       if @pending != :rest
@@ -119,7 +133,7 @@ mml.split(/\n/).each do |line|
       end
       @note = nextnote
       @lennum = c == 'n' ? nil : 0
-      @len = seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
+      @len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
       vel = @nextvelocity || @velocity
       @pending = [
         NoteOn.new(@ch, @note, vel, @rest),
@@ -132,7 +146,7 @@ mml.split(/\n/).each do |line|
       dopending
       @lennum = 0
       @pending = :rest
-      @nextrest = seq.length_to_delta(4.0 / @deflen)
+      @nextrest = @seq.length_to_delta(4.0 / @deflen)
     when 'p' # pan
       dopending
       @pending = :pan
@@ -212,7 +226,7 @@ mml.split(/\n/).each do |line|
         elsif @lennum.nil?
           @note *= 10
           @note += c.to_i
-          len = seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
+          len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
           @pending = [
             NoteOn.new(@ch, @note, vel, @rest),
             NoteOff.new(@ch, @note, vel, len)
@@ -222,9 +236,9 @@ mml.split(/\n/).each do |line|
           @lennum += c.to_i
         end
         if @pending == :rest
-          @nextrest = seq.length_to_delta(4.0 / @lennum)
+          @nextrest = @seq.length_to_delta(4.0 / @lennum)
         elsif !@lennum.nil?
-          @len = seq.length_to_delta(4.0 / @lennum) + (@tie || 0)
+          @len = @seq.length_to_delta(4.0 / @lennum) + (@tie || 0)
           @pending[1] = NoteOff.new(@ch, @note, vel, @len)
         end
       end
@@ -234,4 +248,4 @@ mml.split(/\n/).each do |line|
 end
 dopending
 
-File.open('output.mid', 'wb'){|fd| seq.write(fd)}
+File.open('output.mid', 'wb'){|fd| @seq.write(fd)}
