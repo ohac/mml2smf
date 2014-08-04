@@ -33,6 +33,7 @@ end
 @pan = 64
 @volume = 90
 @staccato = 0
+@tie = nil
 
 def dopending
   case @pending
@@ -63,6 +64,7 @@ def dopending
     @lennum = 0
     @nextvelocity = nil
     @nextoctave = 0
+    @tie = nil
   end
   @pending = nil
 end
@@ -99,17 +101,25 @@ mml.split(/\n/).each do |line|
       @track = Track.new(seq)
       seq.tracks << @track
     when /[A-Z]/ # TODO ignore
-    when '&' # TODO ignore
-    when /[cdefgabn]/
-      dopending
-      if c == 'n'
-        @note = 0
-        @lennum = nil
-      else
-        @note = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
-        @lennum = 0
+    when '&'
+      if @pending != :rest
+        @tie = @pending[1].delta_time
       end
-      @len = seq.length_to_delta(4.0 / @deflen)
+    when /[cdefgabn]/
+      nextnote = 0
+      if c != 'n'
+        nextnote = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
+      end
+      if @tie
+        if nextnote != @pending[0].note
+          dopending
+        end
+      else
+        dopending
+      end
+      @note = nextnote
+      @lennum = c == 'n' ? nil : 0
+      @len = seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
       vel = @nextvelocity || @velocity
       @pending = [
         NoteOn.new(@ch, @note, vel, @rest),
@@ -202,7 +212,7 @@ mml.split(/\n/).each do |line|
         elsif @lennum.nil?
           @note *= 10
           @note += c.to_i
-          len = seq.length_to_delta(4.0 / @deflen)
+          len = seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
           @pending = [
             NoteOn.new(@ch, @note, vel, @rest),
             NoteOff.new(@ch, @note, vel, len)
@@ -214,7 +224,7 @@ mml.split(/\n/).each do |line|
         if @pending == :rest
           @nextrest = seq.length_to_delta(4.0 / @lennum)
         elsif !@lennum.nil?
-          @len = seq.length_to_delta(4.0 / @lennum)
+          @len = seq.length_to_delta(4.0 / @lennum) + (@tie || 0)
           @pending[1] = NoteOff.new(@ch, @note, vel, @len)
         end
       end
