@@ -1,0 +1,57 @@
+tempo 666666 msecs per qnote (90.00009000009 bpm)
+0: ch 00 prog 1f
+0: ch 00 cntl 07 50
+0: ch 00 on 3c 5a
+240: ch 00 off 3c 5a
+240: ch 00 on 3e 5a
+480: ch 00 off 3e 5a
+0: ch 00 on 40 5a
+240: ch 00 off 40 5a
+240: ch 00 on 42 5a
+480: ch 00 off 42 5a
+0: ch 00 on 3c 5a
+480: ch 00 off 3c 5a
+0: ch 00 on 40 5a
+120: ch 00 off 40 5a
+0: ch 00 on 40 5a
+120: ch 00 off 40 5a
+120: ch 00 on 40 5a
+120: ch 00 off 40 5a
+0: ch 01 prog 05
+0: ch 01 cntl 07 5a
+0: ch 01 on 41 5a
+240: ch 01 off 41 5a
+240: ch 01 on 43 7f
+480: ch 01 off 43 7f
+240: ch 01 on 45 5a
+240: ch 01 off 45 5a
+0: ch 01 on 46 5a
+480: ch 01 off 46 5a
+0: ch 01 on 30 32
+120: ch 01 off 30 32
+0: ch 01 on 30 32
+120: ch 01 off 30 32
+0: ch 01 on 30 32
+120: ch 01 off 30 32
+0: ch 01 on 30 32
+120: ch 01 off 30 32
+0: ch 01 on 32 5a
+360: ch 01 off 32 5a
+0: ch 01 on 32 5a
+120: ch 01 off 32 5a
+0: ch 02 prog 0a
+0: ch 02 cntl 0a 00
+0: ch 02 on 32 5a
+240: ch 02 off 32 5a
+0: ch 02 cntl 0a 7f
+0: ch 02 on 3c 5a
+240: ch 02 off 3c 5a
+0: ch 02 cntl 0a 40
+0: ch 02 on 46 5a
+240: ch 02 off 46 5a
+0: ch 02 cntl 07 7f
+0: ch 02 on 50 5a
+240: ch 02 off 50 5a
+0: ch 02 cntl 07 32
+0: ch 02 on 5a 5a
+240: ch 02 off 5a 5a
