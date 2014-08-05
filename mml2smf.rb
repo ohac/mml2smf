@@ -5,8 +5,8 @@ require 'erb'
 include MIDI
 @seq = Sequence.new()
 
-if ARGV.empty?
-  p :usage
+if ARGV.size < 2
+  puts "usage: ruby mml2smf.rb input.mml output.mid [-v]"
   exit
 end
 file = ARGV[0]
@@ -320,4 +320,14 @@ mml.split(/\n/).each do |line|
 end
 dopending
 
-File.open('output.mid', 'wb'){|fd| @seq.write(fd)}
+outputfile = ARGV[1]
+
+File.open(outputfile, 'wb'){|fd| @seq.write(fd)}
+
+if ARGV[2] == '-v'
+  @seq.each do |track|
+    track.each do |e|
+      puts e
+    end
+  end
+end
