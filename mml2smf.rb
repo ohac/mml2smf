@@ -175,7 +175,10 @@ mml.split(/\n/).each do |line|
           dopending
         end
       elsif @code
-        dopending if @code.last == :end
+        if @code.last == :end
+          dopending
+          @code = nil
+        end
       else
         dopending
       end
