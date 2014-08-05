@@ -3,6 +3,8 @@ mml2smf
 
 Convert MML to Standard MIDI File
 
+[![Build Status](https://travis-ci.org/ohac/mml2smf.svg?branch=master)](https://travis-ci.org/ohac/mml2smf)
+
 Install
 
     $ sudo gem install midilib
