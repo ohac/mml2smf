@@ -130,7 +130,8 @@ mml.split(/\n/).each do |line|
   if /^#/ === line
     next
   end
-  line.split(//).each do |c|
+  cs = line.split(//)
+  cs.each_with_index do |c, i|
     unless @track
       @track = Track.new(@seq)
       @seq.tracks << @track
@@ -167,7 +168,10 @@ mml.split(/\n/).each do |line|
         @nextoctave = 0
       end
       if @tie
-        if nextnote != @pending[0].note
+        nextc = cs[i + 1]
+        sf = '- +'.index(nextc)
+        sf = sf.nil? ? 0 : sf - 1
+        if nextnote + sf != @pending[0].note
           dopending
         end
       elsif @code
