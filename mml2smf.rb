@@ -157,6 +157,7 @@ mml.split(/\n/).each do |line|
       @prog = 0
     when /;/
       dopending
+      @code = nil
       @track = Track.new(@seq)
       @seq.tracks << @track
     when '&'
@@ -172,8 +173,9 @@ mml.split(/\n/).each do |line|
       if @tie
         if @tie2
           dopending
+          @code = nil
         else
-          @tie2 = true
+          @tie2 = true unless @code
         end
       elsif @code
         if @code.last == :end
@@ -221,7 +223,13 @@ mml.split(/\n/).each do |line|
         @code = []
       end
     when '}'
-      @code << :end if @code && @tie.nil?
+      if @tie
+        @len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
+        @pending[1].delta_time = @len
+        @tie2 = true
+      else
+        @code << :end if @code
+      end
     when /[<>]/
       dopending
       @octave += 1 if c == '>'

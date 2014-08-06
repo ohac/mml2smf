@@ -1,6 +1,6 @@
 desc 'Run unit tests'
 task :test do
-  ['test', 'test-2', 'test-code'].each do |name|
+  ['test', 'test-2', 'test-code', 'test-code2'].each do |name|
     mml = "test/#{name}.mml"
     mid = "test/#{name}.mid"
     actual = "test/#{name}.actual.log"
