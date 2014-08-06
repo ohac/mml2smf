@@ -7,7 +7,7 @@ Convert MML to Standard MIDI File
 
 Install
 
-    $ sudo gem install midilib
+    $ sudo gem install midilib abnf
 
 Convert
 
