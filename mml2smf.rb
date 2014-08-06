@@ -61,6 +61,7 @@ end
 @volume = 90
 @staccato = 0
 @tie = nil
+@tie2 = false
 @code = nil
 
 def dopending
@@ -122,6 +123,7 @@ def dopending
     @lennum = 0
     @nextvelocity = nil
     @tie = nil
+    @tie2 = false
   end
   @pending = nil
 end
@@ -168,11 +170,10 @@ mml.split(/\n/).each do |line|
         @nextoctave = 0
       end
       if @tie
-        nextc = cs[i + 1]
-        sf = '- +'.index(nextc)
-        sf = sf.nil? ? 0 : sf - 1
-        if nextnote + sf != @pending[0].note
+        if @tie2
           dopending
+        else
+          @tie2 = true
         end
       elsif @code
         if @code.last == :end
@@ -183,7 +184,7 @@ mml.split(/\n/).each do |line|
         dopending
       end
       @note = nextnote
-      @code << @note if @code
+      @code << @note if @code && @tie.nil?
       if @code && @code.size > 1
       else
         @lennum = c == 'n' ? nil : 0
@@ -215,10 +216,12 @@ mml.split(/\n/).each do |line|
       @pending = :staccato
       @staccato = 0
     when '{'
-      dopending
-      @code = []
+      unless @tie
+        dopending
+        @code = []
+      end
     when '}'
-      @code << :end
+      @code << :end if @code && @tie.nil?
     when /[<>]/
       dopending
       @octave += 1 if c == '>'
