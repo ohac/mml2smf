@@ -1,0 +1,66 @@
+t240
+ch1
+@2
+l1
+v70
+w90
+# F-7    Bb-7      Eb7       Abmaj7
+{fa-ce-} {b-d-fa-} {e-gb-d-} {a-ce-g}
+
+# Dbmaj7 G7     Cmaj7
+{d-fa-c} {gbdf} {cegb} {cegb}
+
+# C-7    F-7      Bb7      Ebmaj7
+{ce-gb-} {fa-ce-} {b-dfa-} {e-gb-d}
+
+# Abmaj7 D7      Gmaj7   
+{a-ce-g} {dg-ac} {gbdf+} {gbdf+}
+
+# A-7  D7      Gmaj7
+{aceg} {dg-ac} {gbdf+} {gbdf+}
+
+# F#-7   B7       Emaj7    C7+
+{f+ac+e} {be-g-a} {ea-bd+} {ceg+b-}
+
+# F-7    Bb-7      Eb7       Abmaj7
+{fa-ce-} {b-d-fa-} {e-gb-d-} {a-ce-g}
+
+# Dbmaj7 Gb9         C-7      Bdim
+{d-fa-c} {g-b-d-ea-} {ce-gb-} {bdfa-}
+
+# Bb-7    Eb7       Ab      Ab
+{b-d-fa-} {e-gb-d-} {a-ce-} {a-ce-}
+;
+ch3
+l4
+v90
+w127
+@5
+a-1 ~d-2&~d-8 a-4.  g4.g8g4g8g8 r8~c4.&~c8g4.
+f.f8ff8f8r8b.&b8f.e1&e2.r
+e-2.&e-8a-8&a-2&a-8e-.ddd8dd8r8g.&g8d-8d
+
+c.c8cc8c8&c6d6e-6dc8_b8&_b1rr8d8g8>d.
+d.c8c2&c.e-8e8c<b8&b1&b.d8g8bb8
+ba8a8&a2&a8b-.ba8g+8&g1+&g1+
+
+a-2.&a-8>d-8&d-2&d-8<a-.g.g8gg8g8r8~c.&~c8g.
+f2.&f8~e-8&~e-2&~e-8~d-.e-3e-6e-6e-6e-6g2&g8f.
+d-fa-~d-~f2g.a-8&a-1&a-1
+;
+ch10
+l4
+o2
+w90
+v50
+rg+rg+rg+rg+rg+rg+rg+rg+
+rg+rg+rg+rg+rg+rg+rg+rg+
+rg+rg+rg+rg+rg+rg+rg+rg+
+
+rg+rg+rg+rg+rg+rg+rg+rg+
+rg+rg+rg+rg+rg+rg+rg+rg+
+rg+rg+rg+rg+rg+rg+rg+rg+
+
+rg+rg+rg+rg+rg+rg+rg+rg+
+rg+rg+rg+rg+rg+rg+rg+rg+
+rg+rg+rg+rg+rg+rg+rg+rg+
