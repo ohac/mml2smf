@@ -130,10 +130,15 @@ def dopending
   @pending = nil
 end
 
-mml.split(/\n/).each do |line|
-  if /^#/ === line
-    next
+mml.gsub(ABNFParser::MMLLine) do |line|
+  next if /^#/ === line
+  line.chomp!
+
+  # TODO parse test
+  line.gsub(ABNFParser::Event) do |ev|
+    #p ev
   end
+
   cs = line.split(//)
   cs.each_with_index do |c, i|
     unless @track

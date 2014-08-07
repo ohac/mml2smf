@@ -1,8 +1,8 @@
 #! /usr/bin/env ruby
 require 'abnf'
 
-class ABNFParser
-mmllinefmt = <<EOS
+module ABNFParser
+  mmllinefmt = <<EOS
   mmlline = (line | commentline)
   line = 0*1(*track WSP) *(event | WSP) LF
   commentline = "#" *(WSP | VCHAR) LF
@@ -10,7 +10,7 @@ mmllinefmt = <<EOS
           "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" |
           "W" | "X" | "Y" | "Z"
 EOS
-eventfmt = <<EOS
+  eventfmt = <<EOS
   event = tiednote | restlen | length | tempo | prog | ch | nexttrack |
           octave | octavechange | velocity | velocitynext | pan | volume |
           staccato
@@ -33,24 +33,14 @@ eventfmt = <<EOS
   velocity = "v" num
   velocitynext = "'" num
   pan = "p" num
-  volume = "v" num
+  volume = "w" num
   staccato = "q" num
 EOS
 
-mmlline = ABNF.parse(mmllinefmt)
-event = ABNF.parse(eventfmt)
-mmlline.merge(event)
-mmlliner = mmlline.regexp()
-eventr = event.regexp()
-str = <<EOS
-c4 d ef r8 _g+a-8~b=16. a&a.&a n3&n3.
-# test
-;
-EOS
-str.gsub(mmlliner) do |line|
-  next if /^#/ === line
-  line.gsub(eventr) do |ev|
-    #p ev
-  end
-end
+  mmlline = ABNF.parse(mmllinefmt)
+  event = ABNF.parse(eventfmt)
+  mmlline.merge(event)
+  MMLLine = mmlline.regexp()
+  Event = event.regexp()
+
 end
