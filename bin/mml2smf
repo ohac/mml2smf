@@ -68,8 +68,6 @@ end
 
 def dopending
   case @pending
-  when :rest
-    @rest += @nextrest
   when nil
   else
     noteon = @pending[0]
@@ -179,14 +177,32 @@ mml.gsub(ABNFParser::MMLLine) do |line|
       dopending
       @staccato = ev[1..-1].to_i
       next
+    when 'r' # rest
+      dopending
+      @lennum = 0
+      if ev.size == 1
+        @nextrest = @seq.length_to_delta(4.0 / @deflen)
+      else
+        @lennum = ev[1..-1].to_i
+        @nextrest = @seq.length_to_delta(4.0 / @lennum)
+      end
+      @rest += @nextrest
+      next
+=begin
+    when '{' # code
+      if ev.index('&') # code and tie
+      end
+=end
     end
+=begin
+    if ev.index('&') # tie
+    end
+=end
     cs = ev.split(//)
     cs.each_with_index do |c, i|
       case c
       when '&'
-        if @pending != :rest
-          @tie = @pending[1].delta_time
-        end
+        @tie = @pending[1].delta_time
       when /[cdefgabn]/
         nextnote = 0
         if c != 'n'
@@ -220,11 +236,6 @@ mml.gsub(ABNFParser::MMLLine) do |line|
             NoteOff.new(@ch, @note, vel, @len)
           ]
         end
-      when 'r' # rest
-        dopending
-        @lennum = 0
-        @pending = :rest
-        @nextrest = @seq.length_to_delta(4.0 / @deflen)
       when '{'
         unless @tie
           dopending
@@ -272,9 +283,7 @@ mml.gsub(ABNFParser::MMLLine) do |line|
           @lennum *= 10
           @lennum += c.to_i
         end
-        if @pending == :rest
-          @nextrest = @seq.length_to_delta(4.0 / @lennum)
-        elsif !@lennum.nil?
+        if !@lennum.nil?
           @len = @seq.length_to_delta(4.0 / @lennum) + (@tie || 0)
           @pending[1].delta_time = @len
         end
