@@ -11,7 +11,7 @@ module ABNFParser
           "W" | "X" | "Y" | "Z"
 EOS
   eventfmt = <<EOS
-  event = tiednote | restlen | length | tempo | prog | ch | nexttrack |
+  event = ch | tiednote | restlen | length | tempo | prog | nexttrack |
           octave | octavechange | velocity | velocitynext | pan | volume |
           staccato
   tiednote = (code | notelen | notenum) 0*(tie (code | notelen | notenum))
