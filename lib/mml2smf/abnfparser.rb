@@ -1,5 +1,7 @@
 #! /usr/bin/env ruby
 require 'abnf'
+
+class ABNFParser
 mmllinefmt = <<EOS
   mmlline = (line | commentline)
   line = 0*1(*track WSP) *(event | WSP) LF
@@ -48,6 +50,7 @@ EOS
 str.gsub(mmlliner) do |line|
   next if /^#/ === line
   line.gsub(eventr) do |ev|
-    p ev
+    #p ev
   end
+end
 end

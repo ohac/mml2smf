@@ -2,6 +2,8 @@
 require 'midilib/sequence'
 require 'midilib/consts'
 require 'erb'
+$: << File.join(File.dirname(__FILE__), '../lib') # TODO gem
+require 'mml2smf'
 include MIDI
 @seq = Sequence.new()
 
