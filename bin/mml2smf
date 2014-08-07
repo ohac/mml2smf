@@ -188,16 +188,47 @@ mml.gsub(ABNFParser::MMLLine) do |line|
       end
       @rest += @nextrest
       next
-=begin
     when '{' # code
       if ev.index('&') # code and tie
+        # TODO
+      else
+        # TODO
       end
-=end
     end
-=begin
     if ev.index('&') # tie
-    end
+      notes = ev.split('&')
+      # TODO
+    elsif ev[0] == 'n' # single note
+      dopending
+      @note = ev[1..-1].to_i
+      @lennum = nil
+      @len = @seq.length_to_delta(4.0 / @deflen)
+      vel = @nextvelocity || @velocity
+      @pending = [
+        NoteOn.new(@ch, @note, vel, @rest),
+        NoteOff.new(@ch, @note, vel, @len)
+      ]
+      next
+    else # single note
+      # TODO
+=begin
+      c = ev[0]
+      nextnote = 0
+      dopending
+      nextnote = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
+      @nextoctave = 0
+      @note = nextnote
+      @code << @note if @code && @tie.nil?
+      @lennum = 0
+      @len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
+      vel = @nextvelocity || @velocity
+      @pending = [
+        NoteOn.new(@ch, @note, vel, @rest),
+        NoteOff.new(@ch, @note, vel, @len)
+      ]
+      next
 =end
+    end
     cs = ev.split(//)
     cs.each_with_index do |c, i|
       case c
