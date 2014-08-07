@@ -68,23 +68,9 @@ end
 
 def dopending
   case @pending
-  when :tempo
-    @track.events << Tempo.new(Tempo.bpm_to_mpq(@tempo))
-  when :velocity
-  when :nextvelocity
-  when :prog
-    @track.events << ProgramChange.new(@ch, @prog, 0)
-  when :ch
-    @ch -= 1
   when :rest
     @rest += @nextrest
-  when :length
-  when :octave
   when :staccato
-  when :pan
-    @track.events << Controller.new(@ch, 10, @pan, 0)
-  when :volume
-    @track.events << Controller.new(@ch, 7, @volume, 0)
   when nil
   else
     noteon = @pending[0]
@@ -130,38 +116,70 @@ def dopending
   @pending = nil
 end
 
+@track = Track.new(@seq)
+@seq.tracks << @track
+
 mml.gsub(ABNFParser::MMLLine) do |line|
   next if /^#/ === line
   line.chomp!
   line.gsub(ABNFParser::Event) do |ev|
+    case ev[0]
+    when 't'
+      dopending
+      @tempo = ev[1..-1].to_i
+      @track.events << Tempo.new(Tempo.bpm_to_mpq(@tempo))
+      next
+    when 'v'
+      dopending
+      @velocity = ev[1..-1].to_i
+      next
+    when "'"
+      dopending
+      @nextvelocity = ev[1..-1].to_i
+      next
+    when '@'
+      dopending
+      @prog = ev[1..-1].to_i
+      @track.events << ProgramChange.new(@ch, @prog, 0)
+      next
+    when ';'
+      dopending
+      @code = nil
+      @track = Track.new(@seq)
+      @seq.tracks << @track
+      next
+    when 'c' # ch
+      if ev[1] == 'h'
+        @ch = ev[2..-1].to_i - 1
+        next
+      end
+    when 'p'
+      dopending
+      @pan = ev[1..-1].to_i
+      @track.events << Controller.new(@ch, 10, @pan, 0)
+      next
+    when 'w'
+      dopending
+      @volume = ev[1..-1].to_i
+      @track.events << Controller.new(@ch, 7, @volume, 0)
+      next
+    when 'o'
+      dopending
+      @octave = ev[1..-1].to_i
+      next
+    when /[<>]/
+      dopending
+      @octave += ev[0] == '>' ? 1 : -1
+      next
+    when 'l'
+      dopending
+      @deflen = ev[1..-1].to_i
+      # TODO @deflen /= 1.5 # 'l4.'
+      next
+    end
     cs = ev.split(//)
     cs.each_with_index do |c, i|
-      unless @track
-        @track = Track.new(@seq)
-        @seq.tracks << @track
-      end
       case c
-      when /t/
-        dopending
-        @pending = :tempo
-        @tempo = 0
-      when /v/
-        dopending
-        @pending = :velocity
-        @velocity = 0
-      when "'"
-        dopending
-        @pending = :nextvelocity
-        @nextvelocity = 0
-      when /@/
-        dopending
-        @pending = :prog
-        @prog = 0
-      when /;/
-        dopending
-        @code = nil
-        @track = Track.new(@seq)
-        @seq.tracks << @track
       when '&'
         if @pending != :rest
           @tie = @pending[1].delta_time
@@ -199,22 +217,11 @@ mml.gsub(ABNFParser::MMLLine) do |line|
             NoteOff.new(@ch, @note, vel, @len)
           ]
         end
-      when 'h' # ch
-        @pending = :ch
-        @ch = 0
       when 'r' # rest
         dopending
         @lennum = 0
         @pending = :rest
         @nextrest = @seq.length_to_delta(4.0 / @deflen)
-      when 'p' # pan
-        dopending
-        @pending = :pan
-        @pan = 0
-      when 'w' # volume
-        dopending
-        @pending = :volume
-        @volume = 0
       when 'q'
         dopending
         @pending = :staccato
@@ -232,22 +239,11 @@ mml.gsub(ABNFParser::MMLLine) do |line|
         else
           @code << :end if @code
         end
-      when /[<>]/
-        dopending
-        @octave += 1 if c == '>'
-        @octave -= 1 if c == '<'
       when /[~_]/
         unless @tie
           dopending
         end
         @nextoctave = c == '~' ? 1 : -1
-      when 'o'
-        dopending
-        @pending = :octave
-      when 'l'
-        dopending
-        @pending = :length
-        @deflen = 0
       when /[+-]/
         case @pending
         when :staccato
@@ -267,27 +263,6 @@ mml.gsub(ABNFParser::MMLLine) do |line|
         end
       when /[0-9.]/
         case @pending
-        when :tempo
-          @tempo *= 10
-          @tempo += c.to_i
-        when :velocity
-          @velocity *= 10
-          @velocity += c.to_i
-        when :nextvelocity
-          @nextvelocity *= 10
-          @nextvelocity += c.to_i
-        when :prog
-          @prog *= 10
-          @prog += c.to_i
-        when :ch
-          @ch *= 10
-          @ch += c.to_i
-        when :pan
-          @pan *= 10
-          @pan += c.to_i
-        when :volume
-          @volume *= 10
-          @volume += c.to_i
         when :staccato
           if @staccato.nil? || @staccato < 0
             @staccato = 0 unless @staccato
@@ -296,15 +271,6 @@ mml.gsub(ABNFParser::MMLLine) do |line|
           else
             @staccato *= 10
             @staccato += c.to_i
-          end
-        when :octave
-          @octave = c.to_i
-        when :length
-          if c == '.'
-            @deflen *= 1.5
-          else
-            @deflen *= 10
-            @deflen += c.to_i
           end
         else
           vel = @nextvelocity || @velocity
@@ -330,7 +296,6 @@ mml.gsub(ABNFParser::MMLLine) do |line|
             @pending[1].delta_time = @len
           end
         end
-      when /[ \t\n]/
       end
     end
   end
