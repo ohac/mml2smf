@@ -44,6 +44,7 @@ EOS
   Event = event.regexp()
 
   def self.parsenotestr(str, octave, deflen, seq)
+    return parsenotenostr(str, deflen, seq) if str[0] == 'n'
     i = 1
     c = str[0]
     sharp = str[1]

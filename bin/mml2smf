@@ -200,26 +200,14 @@ mml.gsub(ABNFParser::MMLLine) do |line|
       if ev.index('&') # tie
         notes = ev.split('&')
         notestr = notes.shift
-        if notestr[0] == 'n'
-          @note, @len = ABNFParser.parsenotenostr(ev, @deflen, @seq)
-        else
-          @note, @len = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
-        end
+        @note, @len = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
         notes.each do |notestr|
           len = nil
-          if notestr[0] == 'n'
-            _, len = ABNFParser.parsenotenostr(notestr, @deflen, @seq)
-          else
-            _, len = ABNFParser.parsenotestr(notestr, @octave, @deflen, @seq)
-          end
+          _, len = ABNFParser.parsenotestr(notestr, @octave, @deflen, @seq)
           @len += len
         end
       else # single note
-        if ev[0] == 'n'
-          @note, @len = ABNFParser.parsenotenostr(ev, @deflen, @seq)
-        else
-          @note, @len = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
-        end
+        @note, @len = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
       end
       vel = @nextvelocity || @velocity
       @pending = [
