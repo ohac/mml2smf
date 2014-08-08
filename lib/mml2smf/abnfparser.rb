@@ -17,12 +17,12 @@ EOS
   tiednote = (code | notelen | notenum) 0*(tie (code | notelen | notenum))
   code = "{" 2*notelen "}"
   notelen = ( note num | note ) ["."]
-  notenum = "n" num ["."]
+  notenum = "n" num
   note = ["~" | "_"] 1("a" | "b" | "c" | "d" | "e" | "f" | "g")
          [("+" | "-" | "=")]
   restlen = ("r" num | "r") ["."]
   num = 1*("0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9")
-  length = "l" num
+  length = "l" num ["."]
   tempo = "t" num
   tie = "&"
   prog = "@" num
@@ -43,8 +43,8 @@ EOS
   MMLLine = mmlline.regexp()
   Event = event.regexp()
 
-  def self.parsenotestr(str, octave, deflen, seq)
-    return parsenotenostr(str, deflen, seq) if str[0] == 'n'
+  def self.parsenotestr(str, octave, deflen, defdot, seq)
+    return parsenotenostr(str, deflen, defdot, seq) if str[0] == 'n'
     i = 1
     c = str[0]
     sharp = str[1]
@@ -63,18 +63,21 @@ EOS
     end
     lenstr = str[(i)..-1]
     len = lenstr.to_i
-    len = len == 0 ? deflen : len
-    dot = lenstr[-1] == '.'
+    if len == 0
+      len = deflen
+      dot = defdot || lenstr[-1] == '.'
+    else
+      dot = lenstr[-1] == '.'
+    end
     len2 = seq.length_to_delta(4.0 / len)
     len2 += seq.length_to_delta(4.0 / (len * 2)) if dot
     [note, len2]
   end
 
-  def self.parsenotenostr(str, deflen, seq)
+  def self.parsenotenostr(str, deflen, defdot, seq)
     note = str[1..-1].to_i
     len = seq.length_to_delta(4.0 / deflen)
-    dot = str[-1] == '.'
-    len += seq.length_to_delta(4.0 / (deflen * 2)) if dot
+    len += seq.length_to_delta(4.0 / (deflen * 2)) if defdot
     [note, len]
   end
 

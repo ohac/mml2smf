@@ -46,6 +46,7 @@ end
 
 @track = nil
 @deflen = 4
+@defdot = false
 @velocity = 90
 @nextvelocity = nil
 @octave = 4
@@ -123,12 +124,13 @@ mml.gsub(ABNFParser::MMLLine) do |line|
       @octave += ev[0] == '>' ? 1 : -1
     when 'l'
       @deflen = ev[1..-1].to_i
-      # TODO @deflen /= 1.5 # 'l4.'
+      @defdot = ev[-1] == '.'
     when 'q'
       @staccato = ev[1..-1].to_i
     when 'r' # rest
       if ev.size == 1
         nextrest = @seq.length_to_delta(4.0 / @deflen)
+        nextrest = @seq.length_to_delta(4.0 / (@deflen * 2)) if @defdot
       else
         lennum = ev[1..-1].to_i
         nextrest = @seq.length_to_delta(4.0 / lennum)
@@ -145,13 +147,17 @@ mml.gsub(ABNFParser::MMLLine) do |line|
       codestr, lenstr = codelenstr[1..-1].split('}')
       lenstr = '' unless lenstr
       len = lenstr.to_i
-      len = len == 0 ? @deflen : len
-      dot = lenstr[-1] == '.'
+      if len == 0
+        len = @deflen
+        dot = @defdot
+      else
+        dot = lenstr[-1] == '.'
+      end
       totallen = @seq.length_to_delta(4.0 / len)
       totallen += @seq.length_to_delta(4.0 / (len * 2)) if dot
       note = nil
       codestr.gsub(ABNFParser::Event) do |codeev|
-        n, _ = ABNFParser.parsenotestr(codeev, @octave, @deflen, @seq)
+        n, _ = ABNFParser.parsenotestr(codeev, @octave, @deflen, @defdot, @seq)
         note = n unless note
         code << n
       end
@@ -159,8 +165,12 @@ mml.gsub(ABNFParser::MMLLine) do |line|
         _, lenstr = codelenstr[1..-1].split('}')
         lenstr = '' unless lenstr
         len = lenstr.to_i
-        len = len == 0 ? @deflen : len
-        dot = lenstr[-1] == '.'
+        if len == 0
+          len = @deflen
+          dot = @defdot
+        else
+          dot = lenstr[-1] == '.'
+        end
         totallen += @seq.length_to_delta(4.0 / len)
         totallen += @seq.length_to_delta(4.0 / (len * 2)) if dot
       end
@@ -174,14 +184,17 @@ mml.gsub(ABNFParser::MMLLine) do |line|
         if ev.index('&') # tie
           notes = ev.split('&')
           notestr = notes.shift
-          note, totallen = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
+          note, totallen = ABNFParser.parsenotestr(ev, @octave, @deflen,
+                                                   @defdot, @seq)
           notes.each do |notestr|
             len = nil
-            _, len = ABNFParser.parsenotestr(notestr, @octave, @deflen, @seq)
+            _, len = ABNFParser.parsenotestr(notestr, @octave, @deflen,
+                                             @defdot, @seq)
             totallen += len
           end
         else # single note
-          note, totallen = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
+          note, totallen = ABNFParser.parsenotestr(ev, @octave, @deflen,
+                                                   @defdot, @seq)
         end
         vel = @nextvelocity || @velocity
         noteonoff(NoteOn.new(@ch, note, vel, @rest),
