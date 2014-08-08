@@ -8,7 +8,7 @@ include MIDI
 @seq = Sequence.new()
 
 if ARGV.size < 2
-  puts "usage: ruby mml2smf.rb input.mml output.mid [-v]"
+  puts "usage: ruby bin/mml2smf input.mml output.mid [-v]"
   exit
 end
 file = ARGV[0]
@@ -45,72 +45,49 @@ if alltracks.size > 1
 end
 
 @track = nil
-@tempo = 120
 @deflen = 4
-@prog = 1
 @velocity = 90
 @nextvelocity = nil
 @octave = 4
 @nextoctave = 0
-@pending = nil
-@note = nil
-@len = @deflen
-@lennum = 0
 @ch = 0
 @rest = 0
-@nextrest = 0
-@pan = 64
-@volume = 90
 @staccato = 0
-@tie = nil
-@tie2 = false
-@code = nil
 
-def dopending
-  case @pending
-  when nil
-  else
-    noteon = @pending[0]
-    noteoff = @pending[1]
-    if @staccato != 0
-      len = @seq.length_to_delta(4.0 / @staccato.abs)
-      noteon.delta_time = noteon.delta_time
-      if @staccato > 0
-        @rest = noteoff.delta_time - len
-        noteoff.delta_time = len
-      else
-        noteoff.delta_time = noteoff.delta_time - len
-        @rest = len
-      end
+def noteonoff(noteon, noteoff, code = nil)
+  if @staccato != 0
+    len = @seq.length_to_delta(4.0 / @staccato.abs)
+    noteon.delta_time = noteon.delta_time
+    if @staccato > 0
+      @rest = noteoff.delta_time - len
+      noteoff.delta_time = len
     else
-      @rest = 0
+      noteoff.delta_time = noteoff.delta_time - len
+      @rest = len
     end
-    @track.events << noteon
-    if @code
-      @code = @code[1, @code.size - 2]
-      @code.each do |note|
-        anote = noteon.clone
-        anote.delta_time = 0
-        anote.note = note
-        @track.events << anote
-      end
-    end
-    @track.events << noteoff
-    if @code
-      @code.each do |note|
-        anote = noteoff.clone
-        anote.delta_time = 0
-        anote.note = note
-        @track.events << anote
-      end
-    end
-    @nextrest = 0
-    @lennum = 0
-    @nextvelocity = nil
-    @tie = nil
-    @tie2 = false
+  else
+    @rest = 0
   end
-  @pending = nil
+  @track.events << noteon
+  if code
+    code = code[1, code.size - 1]
+    code.each do |note|
+      anote = noteon.clone
+      anote.delta_time = 0
+      anote.note = note
+      @track.events << anote
+    end
+  end
+  @track.events << noteoff
+  if code
+    code.each do |note|
+      anote = noteoff.clone
+      anote.delta_time = 0
+      anote.note = note
+      @track.events << anote
+    end
+  end
+  @nextvelocity = nil
 end
 
 @track = Track.new(@seq)
@@ -122,76 +99,43 @@ mml.gsub(ABNFParser::MMLLine) do |line|
   line.gsub(ABNFParser::Event) do |ev|
     case ev[0]
     when 't'
-      dopending
-      @tempo = ev[1..-1].to_i
-      @track.events << Tempo.new(Tempo.bpm_to_mpq(@tempo))
-      next
+      tempo = ev[1..-1].to_i
+      @track.events << Tempo.new(Tempo.bpm_to_mpq(tempo))
     when 'v'
-      dopending
       @velocity = ev[1..-1].to_i
-      next
     when "'"
-      dopending
       @nextvelocity = ev[1..-1].to_i
-      next
     when '@'
-      dopending
-      @prog = ev[1..-1].to_i
-      @track.events << ProgramChange.new(@ch, @prog, 0)
-      next
+      prog = ev[1..-1].to_i
+      @track.events << ProgramChange.new(@ch, prog, 0)
     when ';'
-      dopending
-      @code = nil
       @track = Track.new(@seq)
       @seq.tracks << @track
-      next
-    when 'c' # ch
-      if ev[1] == 'h'
-        @ch = ev[2..-1].to_i - 1
-        next
-      end
     when 'p'
-      dopending
-      @pan = ev[1..-1].to_i
-      @track.events << Controller.new(@ch, 10, @pan, 0)
-      next
+      pan = ev[1..-1].to_i
+      @track.events << Controller.new(@ch, 10, pan, 0)
     when 'w'
-      dopending
-      @volume = ev[1..-1].to_i
-      @track.events << Controller.new(@ch, 7, @volume, 0)
-      next
+      volume = ev[1..-1].to_i
+      @track.events << Controller.new(@ch, 7, volume, 0)
     when 'o'
-      dopending
       @octave = ev[1..-1].to_i
-      next
     when /[<>]/
-      dopending
       @octave += ev[0] == '>' ? 1 : -1
-      next
     when 'l'
-      dopending
       @deflen = ev[1..-1].to_i
       # TODO @deflen /= 1.5 # 'l4.'
-      next
     when 'q'
-      dopending
       @staccato = ev[1..-1].to_i
-      next
     when 'r' # rest
-      dopending
-      @lennum = 0
       if ev.size == 1
-        @nextrest = @seq.length_to_delta(4.0 / @deflen)
+        nextrest = @seq.length_to_delta(4.0 / @deflen)
       else
-        @lennum = ev[1..-1].to_i
-        @nextrest = @seq.length_to_delta(4.0 / @lennum)
+        lennum = ev[1..-1].to_i
+        nextrest = @seq.length_to_delta(4.0 / lennum)
       end
-      @rest += @nextrest
-      next
+      @rest += nextrest
     when '{' # code
-      dopending
-      @code = []
-      codes = nil
+      code = []
       if ev.index('&') # code and tie
         codes = ev.split('&')
       else
@@ -203,146 +147,49 @@ mml.gsub(ABNFParser::MMLLine) do |line|
       len = lenstr.to_i
       len = len == 0 ? @deflen : len
       dot = lenstr[-1] == '.'
-      @len = @seq.length_to_delta(4.0 / len)
-      @len += @seq.length_to_delta(4.0 / (len * 2)) if dot
-      @note = nil
+      totallen = @seq.length_to_delta(4.0 / len)
+      totallen += @seq.length_to_delta(4.0 / (len * 2)) if dot
+      note = nil
       codestr.gsub(ABNFParser::Event) do |codeev|
-        note, _ = ABNFParser.parsenotestr(codeev, @octave, @deflen, @seq)
-        @note = note unless @note
-        @code << note
+        n, _ = ABNFParser.parsenotestr(codeev, @octave, @deflen, @seq)
+        note = n unless note
+        code << n
       end
-      @code << :end
       codes.each do |codelenstr|
         _, lenstr = codelenstr[1..-1].split('}')
         lenstr = '' unless lenstr
         len = lenstr.to_i
         len = len == 0 ? @deflen : len
         dot = lenstr[-1] == '.'
-        @len += @seq.length_to_delta(4.0 / len)
-        @len += @seq.length_to_delta(4.0 / (len * 2)) if dot
+        totallen += @seq.length_to_delta(4.0 / len)
+        totallen += @seq.length_to_delta(4.0 / (len * 2)) if dot
       end
       vel = @nextvelocity || @velocity
-      @pending = [
-        NoteOn.new(@ch, @note, vel, @rest),
-        NoteOff.new(@ch, @note, vel, @len)
-      ]
-      next
+      noteonoff(NoteOn.new(@ch, note, vel, @rest),
+          NoteOff.new(@ch, note, vel, totallen), code)
     else
-      dopending
-      @code = nil
-      if ev.index('&') # tie
-        notes = ev.split('&')
-        notestr = notes.shift
-        @note, @len = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
-        notes.each do |notestr|
-          len = nil
-          _, len = ABNFParser.parsenotestr(notestr, @octave, @deflen, @seq)
-          @len += len
-        end
-      else # single note
-        @note, @len = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
-      end
-      vel = @nextvelocity || @velocity
-      @pending = [
-        NoteOn.new(@ch, @note, vel, @rest),
-        NoteOff.new(@ch, @note, vel, @len)
-      ]
-      next
-    end
-    cs = ev.split(//)
-    cs.each_with_index do |c, i|
-      case c
-      when '&'
-        @tie = @pending[1].delta_time
-      when /[cdefgabn]/
-        nextnote = 0
-        if c != 'n'
-          nextnote = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
-          @nextoctave = 0
-        end
-        if @tie
-          if @tie2
-            dopending
-            @code = nil
-          else
-            @tie2 = true unless @code
+      if ev[0] == 'c' && ev[1] == 'h' # ch
+        @ch = ev[2..-1].to_i - 1
+      else
+        if ev.index('&') # tie
+          notes = ev.split('&')
+          notestr = notes.shift
+          note, totallen = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
+          notes.each do |notestr|
+            len = nil
+            _, len = ABNFParser.parsenotestr(notestr, @octave, @deflen, @seq)
+            totallen += len
           end
-        elsif @code
-          if @code.last == :end
-            dopending
-            @code = nil
-          end
-        else
-          dopending
+        else # single note
+          note, totallen = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
         end
-        @note = nextnote
-        @code << @note if @code && @tie.nil?
-        if @code && @code.size > 1
-        else
-          @lennum = c == 'n' ? nil : 0
-          @len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
-          vel = @nextvelocity || @velocity
-          @pending = [
-            NoteOn.new(@ch, @note, vel, @rest),
-            NoteOff.new(@ch, @note, vel, @len)
-          ]
-        end
-      when '{'
-        unless @tie
-          dopending
-          @code = []
-        end
-      when '}'
-        if @tie
-          @len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
-          @pending[1].delta_time = @len
-          @tie2 = true
-        else
-          @code << :end if @code
-        end
-      when /[~_]/
-        unless @tie
-          dopending
-        end
-        @nextoctave = c == '~' ? 1 : -1
-      when /[+-]/
-        @note += 1 if c == '+'
-        @note -= 1 if c == '-'
-        if @code && @code.size > 1
-          @code[-1] = @note
-        else
-          vel = @nextvelocity || @velocity
-          @pending = [
-            NoteOn.new(@ch, @note, vel, @rest),
-            NoteOff.new(@ch, @note, vel, @len)
-          ]
-        end
-      when /[0-9.]/
         vel = @nextvelocity || @velocity
-        if c == '.'
-          @lennum = @deflen if @lennum == 0 || @lennum.nil?
-          @lennum /= 1.5
-        elsif @lennum.nil?
-          @note *= 10
-          @note += c.to_i
-          len = @seq.length_to_delta(4.0 / @deflen) + (@tie || 0)
-          @pending = [
-            NoteOn.new(@ch, @note, vel, @rest),
-            NoteOff.new(@ch, @note, vel, len)
-          ]
-        else
-          @lennum *= 10
-          @lennum += c.to_i
-        end
-        if !@lennum.nil?
-          @len = @seq.length_to_delta(4.0 / @lennum) + (@tie || 0)
-          @pending[1].delta_time = @len
-        end
+        noteonoff(NoteOn.new(@ch, note, vel, @rest),
+            NoteOff.new(@ch, note, vel, totallen))
       end
     end
   end
 end
-dopending
 
 outputfile = ARGV[1]
 
