@@ -214,29 +214,7 @@ mml.gsub(ABNFParser::MMLLine) do |line|
     else # single note
       dopending
       @code = nil
-      i = 1
-      c = ev[0]
-      sharp = ev[1]
-      if /[~_]/ === c
-        @nextoctave = c == '~' ? 1 : -1
-        c = ev[1]
-        sharp = ev[2]
-        i += 1
-      end
-      nextnote = (@octave + @nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
-      if /[+\-=]/ === sharp
-        nextnote += 1 if sharp == '+'
-        nextnote -= 1 if sharp == '-'
-        i += 1
-      end
-      @nextoctave = 0
-      lenstr = ev[(i)..-1]
-      len = lenstr.to_i
-      len = len == 0 ? @deflen : len
-      dot = lenstr[-1] == '.'
-      @note = nextnote
-      @len = @seq.length_to_delta(4.0 / len)
-      @len += @seq.length_to_delta(4.0 / (len * 2)) if dot
+      @note, @len = ABNFParser.parsenotestr(ev, @octave, @deflen, @seq)
       vel = @nextvelocity || @velocity
       @pending = [
         NoteOn.new(@ch, @note, vel, @rest),

@@ -43,4 +43,30 @@ EOS
   MMLLine = mmlline.regexp()
   Event = event.regexp()
 
+  def self.parsenotestr(str, octave, deflen, seq)
+    i = 1
+    c = str[0]
+    sharp = str[1]
+    nextoctave = 0
+    if /[~_]/ === c
+      nextoctave = c == '~' ? 1 : -1
+      c = str[1]
+      sharp = str[2]
+      i += 1
+    end
+    note = (octave + nextoctave + 1) * 12 + 'c d ef g a b'.index(c)
+    if /[+\-=]/ === sharp
+      note += 1 if sharp == '+'
+      note -= 1 if sharp == '-'
+      i += 1
+    end
+    lenstr = str[(i)..-1]
+    len = lenstr.to_i
+    len = len == 0 ? deflen : len
+    dot = lenstr[-1] == '.'
+    len2 = seq.length_to_delta(4.0 / len)
+    len2 += seq.length_to_delta(4.0 / (len * 2)) if dot
+    [note, len2]
+  end
+
 end
