@@ -69,4 +69,12 @@ EOS
     [note, len2]
   end
 
+  def self.parsenotenostr(str, deflen, seq)
+    note = str[1..-1].to_i
+    len = seq.length_to_delta(4.0 / deflen)
+    dot = str[-1] == '.'
+    len += seq.length_to_delta(4.0 / (deflen * 2)) if dot
+    [note, len]
+  end
+
 end
