@@ -11,8 +11,8 @@ Install
 
 Convert
 
-    $ ruby mml2smf.rb examples/test.mml
-    $ ruby mml2smf.rb examples/erb.emml
+    $ ruby bin/mml2smf examples/test.mml
+    $ ruby bin/mml2smf examples/erb.emml
 
 Play
 
