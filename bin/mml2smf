@@ -192,7 +192,28 @@ mml.gsub(ABNFParser::MMLLine) do |line|
       if ev.index('&') # code and tie
         # TODO
       else
-        # TODO
+        dopending
+        @code = []
+        codestr, lenstr = ev[1..-1].split('}')
+        lenstr = '' unless lenstr
+        len = lenstr.to_i
+        len = len == 0 ? @deflen : len
+        dot = lenstr[-1] == '.'
+        @len = @seq.length_to_delta(4.0 / len)
+        @len += @seq.length_to_delta(4.0 / (len * 2)) if dot
+        @note = nil
+        codestr.gsub(ABNFParser::Event) do |codeev|
+          note, _ = ABNFParser.parsenotestr(codeev, @octave, @deflen, @seq)
+          @note = note unless @note
+          @code << note
+        end
+        @code << :end if @code
+        vel = @nextvelocity || @velocity
+        @pending = [
+          NoteOn.new(@ch, @note, vel, @rest),
+          NoteOff.new(@ch, @note, vel, @len)
+        ]
+        next
       end
     else
       dopending
