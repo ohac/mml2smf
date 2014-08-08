@@ -202,7 +202,8 @@ mml.gsub(ABNFParser::MMLLine) do |line|
       dopending
       @note = ev[1..-1].to_i
       @len = @seq.length_to_delta(4.0 / @deflen)
-      # TODO @len /= 1.5 # 'n4.'
+      dot = ev[-1] == '.'
+      @len += @seq.length_to_delta(4.0 / (@deflen * 2)) if dot
       vel = @nextvelocity || @velocity
       @pending = [
         NoteOn.new(@ch, @note, vel, @rest),
