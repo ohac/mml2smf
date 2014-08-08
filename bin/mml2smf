@@ -184,7 +184,7 @@ mml.gsub(ABNFParser::MMLLine) do |line|
         if ev.index('&') # tie
           notes = ev.split('&')
           notestr = notes.shift
-          note, totallen = ABNFParser.parsenotestr(ev, @octave, @deflen,
+          note, totallen = ABNFParser.parsenotestr(notestr, @octave, @deflen,
                                                    @defdot, @seq)
           notes.each do |notestr|
             len = nil
