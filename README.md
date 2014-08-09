@@ -16,16 +16,12 @@ Convert
 
 Play
 
-    $ sudo apt-get install qjackctl pulseaudio-module-jack
     $ sudo apt-get install qsynth fluid-soundfont-gm pmidi
-    $ qjackctl &
     $ qsynth &
     $ pmidi -l
      Port     Client name                       Port name
      14:0     Midi Through                      Midi Through Port-0
-    128:0     Client-128                        qjackctl
     129:0     FLUID Synth (9127)                Synth input port (9127:0)
-    131:0     VMPK Input                        VMPK Input
     $ pmidi -p 129:0 output.mid
 
 Commands
