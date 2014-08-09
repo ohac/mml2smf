@@ -130,10 +130,12 @@ mml.gsub(ABNFParser::MMLLine) do |line|
     when 'r' # rest
       if ev.size == 1
         nextrest = @seq.length_to_delta(4.0 / @deflen)
-        nextrest = @seq.length_to_delta(4.0 / (@deflen * 2)) if @defdot
+        nextrest += @seq.length_to_delta(4.0 / (@deflen * 2)) if @defdot
       else
         lennum = ev[1..-1].to_i
+        dot = ev[-1] == '.'
         nextrest = @seq.length_to_delta(4.0 / lennum)
+        nextrest += @seq.length_to_delta(4.0 / (lennum * 2)) if dot
       end
       @rest += nextrest
     when '{' # code

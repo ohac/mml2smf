@@ -3,7 +3,7 @@ tempo 666666 msecs per qnote (90.00009000009 bpm)
 0: ch 00 cntl 07 50
 0: ch 00 on 3c 5a
 240: ch 00 off 3c 5a
-240: ch 00 on 3e 5a
+360: ch 00 on 3e 5a
 480: ch 00 off 3e 5a
 0: ch 00 on 40 5a
 240: ch 00 off 40 5a
