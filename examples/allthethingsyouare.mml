@@ -36,17 +36,17 @@ l4
 v90
 w127
 @5
-a-1 ~d-2&~d-8 a-4.  g4.g8g4g8g8 r8~c4.&~c8g4.
-f.f8ff8f8r8b.&b8f.e1&e2.r
-e-2.&e-8a-8&a-2&a-8e-.ddd8dd8r8g.&g8d-8d
+a-1 ~d-2&~d-8 a-4. g4&g6g12g4g6g12 r6~c12&~c4&~c6g12&g4
+f4&f6f12 ff6f12 r6b12&b4&b6f12&f4 e1&e2.r
+e-2.&e-6a-12&a-2&a-6e-12&e-4 ddd6d12&d6d12r6g12&g4&g6d-12d
 
-c.c8cc8c8&c6d6e-6dc8_b8&_b1rr8d8g8>d.
-d.c8c2&c.<e-8e8>c<b8&b1&b.d8g8bb8
-ba8a8&a2&a8<b-.b>a8g+8&g+1&g+1
+c&c6c12cc6c12&c6d6e-6dc6_b12&_b1rr6d12g6>d12&d
+d&d6c12 c2&c&c6<e-12 e6>c12&c6<b12&b1&b&b6d12g6bb12
+ba6a12&a2&a6<b-12&b- b>a6g+12&g+1&g+1
 
-a-2.&a-8>d-8&d-2&d-8<a-.g.g8gg8g8r8~c.&~c8g.
-f2.&f8~e-8&~e-2&~e-8~d-.e-3e-6e-6e-6e-6g2&g8f.
-d-fa-~d-~f2g.a-8&a-1&a-1
+a-2.&a-6>d-12&d-2&d-6<a-12&a-g&g6g12gg6g12r6~c12&~c&~c6g12&g
+f2.&f6~e-12&~e-2&~e-6~d-12&d-e-3e-6e-6e-6e-6g2&g6f8&f
+d-fa-~d-~f2g&f6a-12&a-1&a-1
 ;
 ch10
 l4
