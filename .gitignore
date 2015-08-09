@@ -1,3 +1,6 @@
 output.mid
+Gemfile.lock
+.bundle/
 test/*.actual.log
 test/*.mid
+vendor/

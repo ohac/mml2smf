@@ -7,12 +7,12 @@ Convert MML to Standard MIDI File
 
 Install
 
-    $ sudo gem install midilib abnf
+    $ bundle install --path vendor/bundle
 
 Convert
 
-    $ ruby bin/mml2smf examples/test.mml
-    $ ruby bin/mml2smf examples/erb.emml
+    $ bundle exec bin/mml2smf test/test.mml test.mid
+    $ bundle exec bin/mml2smf examples/erb.rmml erb.mid
 
 Play
 
