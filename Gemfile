@@ -3,3 +3,4 @@ source "https://rubygems.org"
 
 gem 'midilib'
 gem 'abnf'
+gem 'rake'
