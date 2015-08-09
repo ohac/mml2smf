@@ -1,6 +1,7 @@
-t240
+t120
 ch1
-@2
+# Rhods Piano
+@4
 l1
 v70
 w90
@@ -13,7 +14,7 @@ w90
 # C-7    F-7      Bb7      Ebmaj7
 {ce-gb-} {fa-ce-} {b-dfa-} {e-gb-d}
 
-# Abmaj7 D7      Gmaj7   
+# Abmaj7 D7      Gmaj7
 {a-ce-g} {dg-ac} {gbdf+} {gbdf+}
 
 # A-7  D7      Gmaj7
@@ -31,11 +32,47 @@ w90
 # Bb-7    Eb7       Ab      Ab
 {b-d-fa-} {e-gb-d-} {a-ce-} {a-ce-}
 ;
+ch2
+# Acoustic Bass
+@32
+l1
+v100
+w120
+o1
+# F-7    Bb-7      Eb7       Abmaj7
+f        b-        e-        a-
+
+# Dbmaj7 G7     Cmaj7
+d- g c c
+
+# C-7    F-7      Bb7      Ebmaj7
+c f b- e-
+
+# Abmaj7 D7      Gmaj7
+a- d g g
+
+# A-7  D7      Gmaj7
+a d g g
+
+# F#-7   B7       Emaj7    C7+
+f+ b e c
+
+# F-7    Bb-7      Eb7       Abmaj7
+f b- e- a-
+
+# Dbmaj7 Gb9         C-7      Bdim
+d- g- c b
+
+# Bb-7    Eb7       Ab      Ab
+b- e- a- a-
+;
 ch3
 l4
+o3
 v90
 w127
-@5
+# Jazz Guitar
+@26
 a-1 ~d-2&~d-8 a-4. g4&g6g12g4g6g12 r6~c12&~c4&~c6g12&g4
 f4&f6f12 ff6f12 r6b12&b4&b6f12&f4 e1&e2.r
 e-2.&e-6a-12&a-2&a-6e-12&e-4 ddd6d12&d6d12r6g12&g4&g6d-12d
