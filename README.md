@@ -36,7 +36,7 @@ Record
 
 Edit
 
-    $ sudo apt-get install audacious
+    $ sudo apt-get install audacious libsox-fmt-mp3
     $ audacious output.flac
     (Edit and export)
     $ sox exported.flac master.mp3
