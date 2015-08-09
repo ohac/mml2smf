@@ -18,11 +18,28 @@ Play
 
     $ sudo apt-get install qsynth fluid-soundfont-gm pmidi
     $ qsynth &
+    (Setup qsynth: e.g. Use pulseaudio. Set soundfont and buffer size. etc.)
     $ pmidi -l
      Port     Client name                       Port name
      14:0     Midi Through                      Midi Through Port-0
     129:0     FLUID Synth (9127)                Synth input port (9127:0)
     $ pmidi -p 129:0 output.mid
+
+Record
+
+    $ sudo apt-get install sox
+    $ pactl load-module module-null-sink
+    (Set qsynth output to Null Output)
+    $ parec | sox -t raw -r 44100 -e signed-integer -L -b 16 -c 2 - output.flac
+    (Set parec input to Null Input)
+    $ pmidi -p 129:0 output.mid
+
+Edit
+
+    $ sudo apt-get install audacious
+    $ audacious output.flac
+    (Edit and export)
+    $ sox exported.flac master.mp3
 
 Commands
 
